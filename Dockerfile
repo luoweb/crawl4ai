@@ -28,7 +28,7 @@ RUN apt-get update -y && \
 # COPY --from=builder /app/main /app/index.html /app/
 # COPY --from=builder /app/requirements.txt /app/requirements.txt
 
-RUN  pip3 install --no-cache-dir crawl4ai
+RUN  pip3 install --no-cache-dir crawl4ai && playwright install
 # RUN  pip3 install --no-cache-dir crawl4ai[sync]
 ENV OPENSSL_CONF /app/libs/openssl/openssl.cnf
 
