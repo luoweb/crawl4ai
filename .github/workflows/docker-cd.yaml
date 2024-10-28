@@ -81,7 +81,7 @@ jobs:
         env:
           DOCKER_ORG: registry.cn-hangzhou.aliyuncs.com/roweb
         run: |
-          docker tag  firecrawl_api:latest ${DOCKER_ORG}/crawl4ai:latest
+          docker build -t ${DOCKER_ORG}/crawl4ai:latest -f Dockerfile .
           docker push ${DOCKER_ORG}/crawl4ai:latest
 
       - name: Clean docker image cache
