@@ -81,8 +81,11 @@ jobs:
         env:
           DOCKER_ORG: registry.cn-hangzhou.aliyuncs.com/roweb
         run: |
-          docker build -t ${DOCKER_ORG}/crawl4ai:latest -f Dockerfile .
-          docker push ${DOCKER_ORG}/crawl4ai:latest
+          docker build -t ${DOCKER_ORG}/crawl4ai:basic -f Dockerfile .
+          docker push ${DOCKER_ORG}/crawl4ai:basic
+          sed -i 's#crawl4ai#crawl4ai[sync]#g' Dockerfile
+          docker build -t ${DOCKER_ORG}/crawl4ai:sync -f Dockerfile .
+          docker push ${DOCKER_ORG}/crawl4ai:sync
 
       - name: Clean docker image cache
         shell: bash
