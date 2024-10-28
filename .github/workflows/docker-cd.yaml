@@ -1,0 +1,90 @@
+name: crawl4ai CD for docker
+
+on:
+  # schedule:
+  #   - cron: '0 18 * * *'
+  push:
+    tags:
+      - '*'
+    branches:
+      - "main"
+      - "master"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # runs-on: self-hosted
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.11" ]
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      # - uses: AutoModality/action-clean@v1
+      - name: Clean docker image cache
+        shell: bash
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h
+          # 国内机安装docker-compose
+          # curl -L https://get.daocloud.io/docker/compose/releases/download/v2.1.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+          # 非大陆（香港服务器）Docker-compose安装
+          # sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          # 设置权限
+          # sudo chmod +x /usr/local/bin/docker-compose
+          # sudo cp apps/api/.env.example apps/api/.env
+          
+
+      # - name: Log in to Docker Hub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      # - name: Build and push Docker image
+      #   shell: bash
+      #   env:
+      #     DOCKER_ORG: ${{ secrets.DOCKERHUB_USERNAME }}
+      #   run: |
+      #     # docker-compose -f docker-compose.yaml up --build -d
+      #     docker images
+      #     docker tag  firecrawl_api:latest luoweb/firecrawl-api:latest
+      #     docker push luoweb/firecrawl-api:latest
+      #     docker tag  firecrawl_worker:latest luoweb/firecrawl-worker:latest
+      #     docker push luoweb/firecrawl-worker:latest
+      #     docker tag  firecrawl_playwright-service:latest luoweb/firecrawl-playwright:latest
+      #     docker push luoweb/firecrawl-playwright:latest
+
+      - name: Log in to Aliyun Docker Hub
+        uses: docker/login-action@v1
+        with:
+          registry: registry.cn-hangzhou.aliyuncs.com
+          username: ${{ secrets.DOCKERHUB_ALIYUN_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_ALIYUN_PASSWORD }}
+
+      - name: Push docker image to Aliyun
+        shell: bash
+        env:
+          DOCKER_ORG: registry.cn-hangzhou.aliyuncs.com/roweb
+        run: |
+          docker tag  firecrawl_api:latest ${DOCKER_ORG}/crawl4ai:latest
+          docker push ${DOCKER_ORG}/crawl4ai:latest
+
+      - name: Clean docker image cache
+        shell: bash
+        run: |
+          docker system prune -f -a
