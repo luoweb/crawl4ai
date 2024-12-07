@@ -199,6 +199,7 @@ test_env/
 **/.DS_Store
 
 todo.md
+todo_executor.md
 git_changes.py
 git_changes.md
 pypi_build.sh
@@ -208,3 +209,9 @@ git_issues.md
 .tests/
 .issues/
 .docs/
+.issues/
+.gitboss/
+todo_executor.md
+protect-all-except-feature.sh
+manage-collab.sh
+publish.sh
